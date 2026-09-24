@@ -1,4 +1,4 @@
-# Scenario 07 — Battleship vs AI
+# Scenario 19 — Battleship vs AI
 
 A terminal Battleship game with separate board and AI modules.
 
