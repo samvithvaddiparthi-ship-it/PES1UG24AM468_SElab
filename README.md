@@ -91,3 +91,49 @@ Submission is only the following three things:
 - [ ] A 10-second video of gameplay **before** your changes, showing the bug/broken behavior
 - [ ] A 10-second video of gameplay **after** your changes, showing the bug fixed and the new features working
 - [ ] The Chat/LLM used page link, with the complete chat history
+
+---
+
+## Solution notes — Samvith Vaddiparthi (PES1UG24AM468)
+
+### Original defects found
+- `ai.py` returned 1-based text (`"1,1"`) that `game.py` compared to 0-based ship
+  cells, so the AI "hit" empty cells and missed real ones. AI shots were also never
+  recorded on the player's board, so the AI could never win.
+- The repeated-shot check and "Ship cells remaining" looked at the player's board
+  instead of the enemy board: the same cell could be fired at (and "HIT") again and
+  the remaining count never went down.
+
+### What changed (one commit per task)
+| Task | Change |
+| --- | --- |
+| 1 | `coords.py` is the single source of truth: 0-based `(row, col)` tuples everywhere, converted to/from 1-based `row,col` text only at input/output. |
+| 2 | `Ship` objects with per-ship hits, 3 ships per side, placement validation, `ShotResult` with sunk ship, `RepeatedShotError`, win **and** lose conditions, `q`/`quit`/`exit`/Ctrl+D to quit. |
+| 3 | Hunt/target AI: after a hit it tries untried neighbours, follows a line after two hits, forgets hits on sunk ships, never repeats a cell, returns `None` when no cells remain. |
+| 4 | Exactly one feedback line per real shot (`You fire at 3,5: HIT! You sank the enemy Cruiser!`), silent AI selection, AI misses reported, side-by-side board display. |
+
+Board key: `X` hit, `o` miss, `#` sunk ship, `S` your undamaged ship, `.` water.
+
+### Running the tests
+Standard library only (no extra dependencies, no persistent storage):
+
+```bash
+python3 -m unittest -v
+```
+
+The tests cover hits, misses, repeated shots, sinking one ship, sinking all ships
+(both sides), AI repeated-shot prevention, adjacent targeting after a hit, a board
+with no choices left, invalid coordinates, quitting, and one-message-per-shot feedback.
+
+### Updated folder structure
+```text
+19_battleship/
+├── README.md
+├── requirements.txt
+├── main.py
+├── game.py      # turn flow, input, feedback, display
+├── board.py     # Ship, ShotResult, Board
+├── ai.py        # hunt/target AI
+├── coords.py    # coordinate parsing/formatting
+└── tests/       # unittest suite for Tasks 1-4
+```
