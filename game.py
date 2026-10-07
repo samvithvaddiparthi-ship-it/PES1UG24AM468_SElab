@@ -31,9 +31,17 @@ class Battleship:
             self.enemy.place_ship(name, cells)
 
     def show(self):
-        print("\nYour shots are coordinates like 2,3.")
+        """Draw both boards side by side with the fleet status."""
+        enemy_rows = self.enemy.render(reveal_ships=False)
+        player_rows = self.player.render(reveal_ships=True)
+        width = len(enemy_rows[0])
+        print()
+        print(f"{'ENEMY WATERS':<{width}}    YOUR FLEET")
+        for left, right in zip(enemy_rows, player_rows):
+            print(f"{left}    {right}")
         print(f"Enemy ships afloat: {len(self.enemy.ships_afloat())}/{len(self.enemy.fleet)}"
               f" | Your ships afloat: {len(self.player.ships_afloat())}/{len(self.player.fleet)}")
+        print("X hit  o miss  # sunk  S your ship | shoot with row,col e.g. 2,3 | q quits")
 
     def _read_player_shot(self):
         """Prompt until the player gives a new, valid cell. None means quit."""
@@ -55,33 +63,46 @@ class Battleship:
                 continue
             return pos
 
+    @staticmethod
+    def shot_message(shooter, result):
+        """The one feedback line for one actual shot."""
+        message = f"{shooter} fire{'s' if shooter == 'AI' else ''} at {format_coord(result.pos)}: "
+        if not result.hit:
+            return message + "miss."
+        message += "HIT!"
+        if result.sunk_ship:
+            owner = "the enemy" if shooter == "You" else "your"
+            message += f" {shooter} sank {owner} {result.sunk_ship.name}!"
+        return message
+
+    def _take_shot(self, shooter, board, pos):
+        """Resolve one real shot and announce it exactly once."""
+        result = board.fire(pos)
+        print(self.shot_message(shooter, result))
+        return result
+
     def run(self):
         """Play until someone's fleet is sunk. Returns "player", "ai" or "quit"."""
-        print("Battleship")
+        print("Battleship - sink the enemy fleet before the AI sinks yours.")
         while True:
             self.show()
             pos = self._read_player_shot()
             if pos is None:
                 print("You quit the game.")
                 return "quit"
-            result = self.enemy.fire(pos)
-            print("HIT!" if result.hit else "MISS!")
-            if result.sunk_ship:
-                print(f"You sank the enemy {result.sunk_ship.name}!")
+            self._take_shot("You", self.enemy, pos)
             if self.enemy.all_sunk():
-                print("You sank the fleet. You win!")
+                self.show()
+                print("You sank the whole enemy fleet. You win!")
                 return "player"
 
+            # Choosing a target is silent; only the shot itself is announced.
             ai_pos = self.ai.choose()
             if ai_pos is None:
                 print("The AI has no cells left to fire at.")
                 continue
-            result = self.player.fire(ai_pos)
-            self.ai.record(ai_pos, result)
-            print("AI fired at", format_coord(ai_pos))
-            print("AI scored a hit." if result.hit else "AI missed.")
-            if result.sunk_ship:
-                print(f"The AI sank your {result.sunk_ship.name}!")
+            self.ai.record(ai_pos, self._take_shot("AI", self.player, ai_pos))
             if self.player.all_sunk():
+                self.show()
                 print("The AI sank your whole fleet. You lose.")
                 return "ai"

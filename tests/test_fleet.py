@@ -102,7 +102,7 @@ class GameFlowTests(unittest.TestCase):
         outcome, out = play(game)
         self.assertEqual(outcome, "ai")
         for name in PLAYER_FLEET:
-            self.assertIn(f"The AI sank your {name}!", out)
+            self.assertIn(f"AI sank your {name}!", out)
         self.assertIn("You lose.", out)
 
     def test_repeated_player_shot_does_not_use_a_turn(self):
