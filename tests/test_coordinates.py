@@ -36,19 +36,19 @@ class CoordinateTests(unittest.TestCase):
             ships = set(board.ships)
             for r in range(Board.SIZE):
                 for c in range(Board.SIZE):
-                    self.assertEqual(board.fire((r, c)), (r, c) in ships)
+                    self.assertEqual(board.fire((r, c)).hit, (r, c) in ships)
 
     def test_player_text_hits_the_cell_it_names(self):
         game = Battleship()
-        self.assertTrue(game.enemy.fire(parse_coord("3,3")))   # enemy ship at (2, 2)
-        self.assertFalse(game.enemy.fire(parse_coord("1,1")))  # known empty cell
+        self.assertTrue(game.enemy.fire(parse_coord("3,3")).hit)   # enemy ship at (2, 2)
+        self.assertFalse(game.enemy.fire(parse_coord("1,1")).hit)  # known empty cell
 
     def test_ai_shot_is_resolved_on_the_cell_it_chose(self):
         # Previously the AI's 1-based text was compared with 0-based cells,
         # so AI cell (0, 0) was reported as a hit on the ship at (1, 1).
         game = Battleship()
-        self.assertFalse(game.player.fire((0, 0)))
-        self.assertTrue(game.player.fire((1, 1)))
+        self.assertFalse(game.player.fire((0, 0)).hit)
+        self.assertTrue(game.player.fire((1, 1)).hit)
         self.assertEqual(game.player.shots, {(0, 0), (1, 1)})
 
 
