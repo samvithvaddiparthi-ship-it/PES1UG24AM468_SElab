@@ -86,3 +86,26 @@ class Board:
 
     def all_sunk(self):
         return bool(self.fleet) and all(ship.sunk for ship in self.fleet)
+
+    def render(self, reveal_ships):
+        """Rows of text for this board, 1-based labels like the player types.
+
+        ``.`` water/unknown, ``o`` miss, ``X`` hit, ``#`` sunk ship and,
+        when ``reveal_ships`` is true, ``S`` for an undamaged ship cell.
+        """
+        rows = ["   " + " ".join(str(c + 1) for c in range(self.size))]
+        for r in range(self.size):
+            cells = []
+            for c in range(self.size):
+                pos = (r, c)
+                ship = self.ship_at(pos)
+                if ship is not None and ship.sunk:
+                    cells.append("#")
+                elif pos in self.shots:
+                    cells.append("X" if ship is not None else "o")
+                elif ship is not None and reveal_ships:
+                    cells.append("S")
+                else:
+                    cells.append(".")
+            rows.append(f"{r + 1:>2} " + " ".join(cells))
+        return rows
