@@ -73,7 +73,11 @@ class Battleship:
                 return "player"
 
             ai_pos = self.ai.choose()
+            if ai_pos is None:
+                print("The AI has no cells left to fire at.")
+                continue
             result = self.player.fire(ai_pos)
+            self.ai.record(ai_pos, result)
             print("AI fired at", format_coord(ai_pos))
             print("AI scored a hit." if result.hit else "AI missed.")
             if result.sunk_ship:
