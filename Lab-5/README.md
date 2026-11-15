@@ -49,3 +49,37 @@ The code works, but only just. It has quality, style and security problems of th
 **Target:** aim for a Pylint score above 9.5 on your final file. A perfect 10.00/10 is very good.
 
 Be ready to explain the bugs you found and how you fixed them. You may be called on to present.
+
+---
+
+## Submission
+
+**Name:** Samvith Vaddiparthi &nbsp;|&nbsp; **SRN:** PES1UG24AM468 &nbsp;|&nbsp; **Section:** H
+
+| File | Description |
+|------|-------------|
+| `hospital_patient_system.py` | Cleaned version: 19 documented issues fixed, and the program still does its job |
+| `issues.md` | Issue table (19 issues, high and medium severity first) and which commit fixed each one |
+| `reflection.md` | Answers to the reflection questions |
+| `pylint_report_before.txt` / `pylint_report_after.txt` | 5.19/10 → **10.00/10** |
+| `bandit_report_before.txt` / `bandit_report_after.txt` | 5 issues (2 High, 1 Medium, 2 Low) → **No issues identified** |
+| `flake8_report_before.txt` / `flake8_report_after.txt` | 11 issues → **0** (an empty Flake8 report means no issues) |
+
+### Commits (one per tool)
+
+1. **Bandit:** shell injection, MD5, `eval`, `try/except/pass`, insecure random, and the hard-coded master key
+2. **Pylint:** mutable default argument, naming, unused code, file handling, docstrings, `__main__` guard
+3. **Flake8:** line lengths (PEP 8)
+
+### How to run
+
+```bash
+pip install pylint bandit flake8
+python hospital_patient_system.py
+pylint hospital_patient_system.py > pylint_report.txt
+bandit -r hospital_patient_system.py > bandit_report.txt
+flake8 hospital_patient_system.py > flake8_report.txt
+```
+
+Note: this README's "It asks one question" line came with the assigned repo, but the given `hospital_patient_system.py`
+never asks for input, so the program runs without any prompts.
